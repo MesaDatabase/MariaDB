@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# MySQL db credentials
+# username="dbuser1"
+# password=''
+
+# Define the path to the MySQL option file
+mariadb_option_file="/etc/mysql/mariadb_client.cnf"
+
+# Define database & backup location
+database="DB1"
+backup_dir="/backups/DB1"
+
+# Prompt for MySQL password
+# echo -n "Enter MySQL password for user $username: "
+# stty -echo  # Turn off echoing
+# read password
+# stty echo  # Turn echoing back on
+# echo  # Add a newline after the password input
+
+# Get current date YYYMMDD
+# current_date=$(date +'%Y%m%d')
+current_date=$(date -d "1 day ago" +'%Y%m%d')
+
+# Get current month YYYY_mm
+current_month=$(date +'%Y_%m')
+
+# Define import database name
+import_db="${database}_${current_month}"
+
+# Define table to be copied
+copy_table="prefix_1_$current_date"
+
+# Define the import  file name
+import_file_name="prefix_1_$current_date.sql"  # Updated file name
+
+# Import the SQL file into the target database
+mysql --defaults-file="$mariadb_option_file" "$import_db" < "$backup_dir/$import_file_name"
+
+echo "DBS - Imported history table: ${sql_file_name%.sql}"

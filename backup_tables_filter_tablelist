@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# MySQL database credentials
+# username="dbuser1"
+# password=''
+
+# Prompt for MySQL password
+# echo -n "Enter MySQL password for user $username: "
+# stty -echo  # Turn off echoing
+# read password
+# stty echo  # Turn echoing back on
+# echo  # Add a newline after the password input
+
+# Define the path to the MySQL option file
+mariadb_option_file="/etc/mysql/mariadb_client.cnf"
+
+# Define database & directory to back up to
+database="DB1"
+backup_dir="/backups/DB1_Essentials"
+
+# Get the current date in YYYYMMDD format
+current_date=$(date +'%Y%m%d')
+
+# Define the backup file name
+backup_file="${database}_${current_date}.sql"
+
+# Prefix to exclude
+exclude_prefix="prefix_"
+
+# Get a list of table names excluding those with the specified prefix
+table_list=$(mysql --defaults-file="$mariadb_option_file" "$database" -e "SHOW TABLES LIKE '$exclude_prefix%';" --skip-column-names)
+
+# Construct the list of tables to exclude
+exclude_tables=""
+for table in $table_list; do
+  exclude_tables+="--ignore-table=${database}.${table} "
+done
+
+# Run mysqldump command to create the backup, excluding specified tables
+mysqldump --defaults-file="$mariadb_option_file" "$database" $exclude_tables > "$backup_dir/$backup_file"

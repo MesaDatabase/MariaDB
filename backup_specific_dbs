@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# MySQL database credentials
+# username="dbuser1"
+# password=''
+
+# Prompt for MySQL password
+#echo -n "Enter MySQL password for user $username: "
+#stty -echo  # Turn off echoing
+#read password
+#stty echo  # Turn echoing back on
+#echo  # Add a newline after the password input
+
+# Define the path to the MySQL option file
+mariadb_option_file="/etc/mysql/mariadb_client.cnf"
+
+# First database
+database1="DB1"
+backup_dir1="/backups/DB1"  # Change this to your desired backup directory
+
+# Second database
+database2="DB2"
+backup_dir2="/backups/DB2"  # Change this to your desired backup directory
+
+# Get the current date in YYYYMMDD format
+current_date=$(date +'%Y%m%d')
+
+# Backup the first database
+# mysqldump -u "$username" -p"$password" "$database1" > "$backup_dir1/${database1}_${current_date}.sql"
+mysqldump --defaults-file="$mariadb_option_file" "$database1" > "$backup_dir1/${database1}_${current_date}.sql"
+echo "DB - Exported database: ${database1}"
+
+# Backup the second database
+# mysqldump -u "$username" -p"$password" "$database2" > "$backup_dir2/${database2}_${current_date}.sql"
+mysqldump --defaults-file="$mariadb_option_file" "$database2" > "$backup_dir2/${database2}_${current_date}.sql"
+
+echo "DB - Exported database: ${database2}"
+
