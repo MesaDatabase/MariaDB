@@ -5,7 +5,7 @@ error_flag=0
 
 # Optional authentication settings for testing
 # MySQL db credentials
-# username="db-services"
+# username="dbuser1"
 # password=''
 
 # Prompt for MySQL password
@@ -19,10 +19,10 @@ error_flag=0
 mariadb_option_file="/etc/mysql/mariadb_client.cnf"
 
 # Define database & backup location
-source_database="SCADA"
+source_database="DB1"
 # source_server="db"
-source_server="10.0.31.50"
-backup_dir="/backups/SCADA"
+source_server="10.0.00.00"
+backup_dir="/backups/DB1"
 
 # Get current / or previous date YYYMMDD - toggle comment 
 # current_date=$(date +'%Y%m%d')
@@ -35,30 +35,30 @@ current_month=$(date +'%Y_%m')
 import_db="${source_database}_${current_month}"
 
 # Define table to be copied
-copy_table="sqlt_data_1_$current_date"
+copy_table="prefix_$current_date"
 
 # Define the import file name
-import_file_name="sqlt_data_1_$current_date.sql"  # Updated file name
+import_file_name="prefix_$current_date.sql"  # Updated file name
 
-# Backup previous day table
+# Backup previous day table from SourceDB
 if mysqldump --defaults-file="$mariadb_option_file" -h "$source_server" "$source_database" "$copy_table" > "$backup_dir/$import_file_name"; then
-    echo "DB - history table backed up"
+    echo "SourceDB - history table backed up"
 else
     echo "Error: backup of history table failed"
     error_flag=1
 fi
 
-# Import the SQL file into the target database on DBS
+# Import the SQL file into the target database on TargetDB
 if mysql --defaults-file="$mariadb_option_file" "$import_db" < "$backup_dir/$import_file_name"; then
-    echo "DBS - Imported history table"
+    echo "TargetDB - Imported history table"
 else
     echo "Error: Import history table failed"
     error_flag=1
 fi
 
-# Import the SQL file into the target database on DB
+# Import the SQL file into the target database on SourceDB
 if mysql --defaults-file="$mariadb_option_file" -h "$source_server" "$import_db" < "$backup_dir/$import_file_name"; then
-    echo "DB - Imported history table"
+    echo "SourceDB - Imported history table"
 else
     echo "Error: Import history table failed"
     error_flag=1
@@ -66,7 +66,7 @@ fi
 
 # Check if any errors occurred during the mysqldump commands
 if [ $error_flag -eq 0 ]; then
-    echo "sqlt_data imports successful."
+    echo "historic data imports successful."
 else
-    echo "Error: sqlt_data imports failed."
+    echo "Error: historic data imports failed."
 fi

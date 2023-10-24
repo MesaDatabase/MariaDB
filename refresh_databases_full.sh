@@ -5,7 +5,7 @@ error_flag=0
 
 # Optional authentication settings for testing
 # MySQL database credentials
-# username="db-services"
+# username="dbuser1"
 # password=''
 
 # Prompt for MySQL password
@@ -23,20 +23,20 @@ mariadb_option_file="/etc/mysql/mariadb_client.cnf"
 current_date=$(date +'%Y%m%d')
 
 # Set source server for db
-source_server="10.0.31.50"
+source_server="10.0.0.00"
 
-# First database - UMCDB config
-database1="UMCDB"
-backup_dir1="/backups/UMCDB"  # Change this to the directory of the first backup file
+# First database - DB1 config
+database1="DB1"
+backup_dir1="/backups/DB1"  # Change this to the directory of the first backup file
 
-# Second database - UMCSERVICES config
-database2="UMCSERVICES"
-backup_dir2="/backups/UMCSERVICES"  # Change this to the directory of the second backup file
+# Second database - DB2 config
+database2="DB2"
+backup_dir2="/backups/DB2"  # Change this to the directory of the second backup file
 
-# Third database - SCADA Essentials config
-database3="SCADA"
-backup_dir3="/backups/SCADA_Essentials"
-exclude_prefix="sqlt_" # Filter out historic data for SCADA_Essentials
+# Third database - DB3 config
+database3="DB3"
+backup_dir3="/backups/DB3_Essentials"
+exclude_prefix="prefix_" # Filter out historic data for DB3_Essentials
 # Get a list of table names excluding those with the specified prefix
 table_list=$(mysql --defaults-file="$mariadb_option_file" -h "$source_server" "$database3" -e "SHOW TABLES LIKE '$exclude_prefix%';" --skip-column-names)
 # Construct the list of tables to exclude
@@ -44,51 +44,51 @@ exclude_tables=""
 for table in $table_list; do
   exclude_tables+="--ignore-table=${database3}.${table} "
 done
-# End SCADA Essentials config
+# End DB3 Essentials config
 
-# Backup & refresh UMCDB
+# Backup & refresh DB1
 if mysqldump --defaults-file="$mariadb_option_file" -h "$source_server" "$database1" > "$backup_dir1/${database1}_${current_date}.sql"; then
-    echo "DB - Exported database: ${database1}"
+    echo "SourceDB - Exported database: ${database1}"
 else
-    echo "Error: backup of UMCDB failed"
+    echo "Error: backup of DB1 failed"
     error_flag=1
 fi
 
 if mysql --defaults-file="$mariadb_option_file" "$database1" < "$backup_dir1/${database1}_${current_date}.sql"; then
-    echo "DBS - Refreshed database: ${database1}"
+    echo "TargetDB - Refreshed database: ${database1}"
 else
-    echo "Error: refresh of UMCDB failed"
+    echo "Error: refresh of DB1 failed"
     error_flag=1
 fi
 
-# Backup & refresh UMCSERVICES
+# Backup & refresh DB2
 if mysqldump --defaults-file="$mariadb_option_file" -h "$source_server" "$database2" > "$backup_dir2/${database2}_${current_date}.sql"; then
-    echo "DB - Exported database: ${database2}"
+    echo "SourceDB - Exported database: ${database2}"
 else
-    echo "Error: backup of UMCSERVICES failed"
+    echo "Error: backup of DB2 failed"
     error_flag=1
 fi
 
 if mysql --defaults-file="$mariadb_option_file" "$database2" < "$backup_dir2/${database2}_${current_date}.sql"; then
-    echo "DBS - Refreshed database: ${database2}"
+    echo "TargetDB - Refreshed database: ${database2}"
 else
-    echo "Error: refresh of UMCSERVICES failed"
+    echo "Error: refresh of DB2 failed"
     error_flag=1
 fi
 
 
-# Backup & refresh SCADA_Essentials
+# Backup & refresh DB3_Essentials
 if mysqldump --defaults-file="$mariadb_option_file" -h "$source_server" "$database3" $exclude_tables > "$backup_dir3/${database3}_${current_date}.sql"; then
-    echo "DB - Exported SCADA_Essentials"
+    echo "SourceDB - Exported DB3_Essentials"
 else
-    echo "Error: backup of SCADA_Essentials failed"
+    echo "Error: backup of DB3_Essentials failed"
     error_flag=1
 fi
 
 if mysql --defaults-file="$mariadb_option_file" "$database3" < "$backup_dir3/${database3}_${current_date}.sql"; then
-    echo "DBS - Refreshed SCADA_Essentials"
+    echo "TargetDB - Refreshed DB3_Essentials"
 else
-    echo "Error: refresh of SCADA_Essentials failed"
+    echo "Error: refresh of DB3_Essentials failed"
     error_flag=1
 fi
 
