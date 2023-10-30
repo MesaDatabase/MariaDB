@@ -1,8 +1,8 @@
 -- Change to the AUTO database
-USE SCADA;
+USE AUTO;
 
 -- Backup the sql_data_1 table to a file
-SELECT * INTO OUTFILE '/backups/SCADA/sqlt_data_1_20230929.sql'
+SELECT * INTO OUTFILE '/backups/AUTO/sql_data_table_yyyymmdd.sql'
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-FROM sqlt_data_1_20230929;
+FROM sql_data_table_yyyymmdd.;
