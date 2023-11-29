@@ -385,3 +385,17 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+-- Disk space
+-- Create a table for disk space information
+-- Table will be populated daily by disk_space.sh 
+CREATE TABLE IF NOT EXISTS disk_space_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    size VARCHAR(20),
+    used VARCHAR(20),
+    avail VARCHAR(20),
+    use_percent VARCHAR(10),
+    mounted_on VARCHAR(50),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
